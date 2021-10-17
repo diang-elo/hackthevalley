@@ -1,10 +1,12 @@
 import React from 'react'
 import { Button, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { useEffect, useState } from 'react'
-//import firebase from '../firebase'
+import { db } from '../firebase'
+import App from '../firebase'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../firebase'
+import { collection, setDoc, doc, addDoc, getFirestore } from "firebase/firestore"; 
 import { useNavigation } from '@react-navigation/core';
+import { getDatabase, ref, set } from "firebase/database";
 // import { TextInput } from 'react-native-gesture-handler';
 // blue color: #0782F9
 
@@ -15,6 +17,7 @@ const LoginScreen = () => {
 
     const navigation = useNavigation()
     const auth = getAuth();
+    //const db = getFirestore(App);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -25,14 +28,33 @@ const LoginScreen = () => {
         return unsubscribe
     }, [])
 
-    const handleSignUp = () => {
+    
+
+    const handleSignUp = async() => {
         
         createUserWithEmailAndPassword(auth, email, password)
-        .then(userCredentials => {
-          const user = userCredentials.user;
+        .then(async userCredentials => {
+            const user = userCredentials.user;
+            const userId = userCredentials.user.uid;
+            set(ref(db, 'users/' + userId), {
+                SnapChat: "",
+                Instagram: "",
+                TikTok: "",
+                Facebook: "",
+                Reddit: "",
+                Twitter: "",
+              });
+        //db.collection("users").doc(doc.id).update({foo: "bar"});
+        
           console.log('Registered with:', user.email);
-        })
-        .catch(error => alert(error.message))
+        }).catch(error => alert(error.message))
+
+        // const userRef = collection(db, "users");
+        //     console.log("hello")
+        //     await setDoc(doc(userRef, "userId"), {
+        //         qrString: "test",
+        //         instagram: "test"
+        //     });
     }
 
     const handleLogin = () => {
